@@ -154,7 +154,7 @@ void APP_Tasks ( void )
                 lcd_bl_on();            //alumer le bl
                 printf_lcd("Tp1 PWM 2022-23");
                 lcd_gotoxy(1,2 );      // ecrire sur la deuxieme ligne
-                printf_lcd("Joao Marques Chaves");
+                printf_lcd("Joao Marques");
                 lcd_gotoxy(1,3 );      // ecrire sur la deuxieme ligne
                 printf_lcd("Loic David");
                 BSP_InitADC10();     //initialisation de l'adc 
@@ -167,7 +167,6 @@ void APP_Tasks ( void )
                 BSP_LEDOn(BSP_LED_6);
                 BSP_LEDOn(BSP_LED_7);
                 GPWM_Initialize(&PWMData);
-                BSP_EnableHbrige();
                 appData.state = APP_STATE_SERVICE_TASKS;
             }
             appData.state = APP_STATE_WAIT;

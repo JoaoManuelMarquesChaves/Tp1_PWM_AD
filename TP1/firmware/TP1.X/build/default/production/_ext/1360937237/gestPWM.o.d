@@ -1,5 +1,6 @@
 build/default/production/_ext/1360937237/gestPWM.o: ../src/gestPWM.c \
  ../src/GestPWM.h ../../../../../../../bsp/pic32mx_skes/Mc32DriverAdc.h \
+ ../../../../../../../bsp/pic32mx_skes/Mc32DriverAdcAlt.h \
  ../../../../../../../framework/peripheral/oc/plib_oc.h \
  ../../../../../../../framework/peripheral/oc/processor/oc_processor.h \
  ../../../../../../../framework/peripheral/oc/processor/oc_p32xxxx.h \
@@ -22,6 +23,8 @@ build/default/production/_ext/1360937237/gestPWM.o: ../src/gestPWM.c \
 ../src/GestPWM.h:
 
 ../../../../../../../bsp/pic32mx_skes/Mc32DriverAdc.h:
+
+../../../../../../../bsp/pic32mx_skes/Mc32DriverAdcAlt.h:
 
 ../../../../../../../framework/peripheral/oc/plib_oc.h:
 

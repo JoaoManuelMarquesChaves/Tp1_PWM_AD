@@ -15,6 +15,7 @@
 
 #include "GestPWM.h"
 #include "Mc32DriverAdc.h"
+#include "Mc32DriverAdcAlt.h"
 #include "peripheral/oc/plib_oc.h"
 
 S_pwmSettings PWMData;      // pour les settings
@@ -24,7 +25,7 @@ void GPWM_Initialize(S_pwmSettings *pData)
    // Init les data 
     
    // Init état du pont en H
-    
+   BSP_EnableHbrige();
    // lance les timers et OC
    DRV_OC0_Start();
    DRV_OC1_Start();
@@ -54,13 +55,16 @@ void GPWM_GetSettings(S_pwmSettings *pData )
     {
         i=0;
     }
+
     for ( i2 = 0; i2 > 9; i2++ )
     {
-        Moyenne_Angle = Moyenne_Angle+Memory_Angle[i2];
-        Moyenne_Speed = Moyenne_Speed+Memory_Speed[i2];
+        Moyenne_Angle = Moyenne_Angle + ReadData.Chan1;
+        Moyenne_Speed = Moyenne_Speed + Memory_Speed[i2];
     }
     pData->absSpeed = (Moyenne_Speed/10)*(198/1023);
-    pData->absAngle = (Moyenne_Angle/10) *(180/1023);
+    //pData->absAngle = (Moyenne_Angle/10) *(180/1023);
+    pData->absAngle = (Moyenne_Angle*180)/(10*1023);
+    
     // conversion
     pData->SpeedSetting = pData->absSpeed -99;
     pData->AngleSetting = pData->absAngle -90;
