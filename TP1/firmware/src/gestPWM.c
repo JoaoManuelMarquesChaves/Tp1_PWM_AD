@@ -17,6 +17,7 @@
 #include "Mc32DriverAdc.h"
 #include "Mc32DriverAdcAlt.h"
 #include "peripheral/oc/plib_oc.h"
+#include "app.h"
 
 S_pwmSettings PWMData;      // pour les settings
 
@@ -39,11 +40,11 @@ void GPWM_Initialize(S_pwmSettings *pData)
 // Obtention vitesse et angle (mise a jour des 4 champs de la structure)
 void GPWM_GetSettings(S_pwmSettings *pData )	
 {
-    static uint8_t Memory_Angle[10]={};
-    static uint8_t Memory_Speed[10]={};
-    static uint8_t Moyenne_Angle = 0;
-    static uint8_t Moyenne_Speed = 0;
-    static uint8_t i,i2=0;
+    static uint16_t Memory_Angle[10]={};
+    static uint16_t Memory_Speed[10]={};
+    static uint16_t Moyenne_Angle = 0;
+    static uint16_t Moyenne_Speed = 0;
+    static uint16_t i,i2=0;
     S_ADCResults ReadData;
     // Lecture du convertisseur AD
     ReadData = BSP_ReadAllADC();
@@ -55,19 +56,33 @@ void GPWM_GetSettings(S_pwmSettings *pData )
     {
         i=0;
     }
-
-    for ( i2 = 0; i2 > 9; i2++ )
-    {
-        Moyenne_Angle = Moyenne_Angle + ReadData.Chan1;
-        Moyenne_Speed = Moyenne_Speed + Memory_Speed[i2];
-    }
-    pData->absSpeed = (Moyenne_Speed/10)*(198/1023);
-    //pData->absAngle = (Moyenne_Angle/10) *(180/1023);
-    pData->absAngle = (Moyenne_Angle*180)/(10*1023);
+    Moyenne_Speed =(Memory_Speed[0]+Memory_Speed[1]
+            +Memory_Speed[2]+Memory_Speed[3]
+            +Memory_Speed[4]+Memory_Speed[5]
+            +Memory_Speed[6]+Memory_Speed[7]
+            +Memory_Speed[8]+Memory_Speed[9])/10;
     
-    // conversion
+    Moyenne_Angle = (Memory_Angle[0]+Memory_Angle[1]
+            +Memory_Angle[2]+Memory_Angle[3]
+            +Memory_Angle[4]+Memory_Angle[5]
+            +Memory_Angle[6]+Memory_Angle[7]
+            +Memory_Angle[8]+Memory_Angle[9])/10;
+    
+    pData->absSpeed = ((Moyenne_Speed*198)/1023);
+    pData->absAngle = ((Moyenne_Angle*180)/1023);
+
+    // conversion 
     pData->SpeedSetting = pData->absSpeed -99;
     pData->AngleSetting = pData->absAngle -90;
+    
+    if(pData->SpeedSetting < 0 )
+    {
+        pData->absSpeed = 0-pData->SpeedSetting; 
+    }
+    else
+    {
+        pData->absSpeed = pData->SpeedSetting;
+    }
 }
 
 // Affichage des information en exploitant la structure
@@ -86,13 +101,52 @@ void GPWM_DispSettings(S_pwmSettings *pData)
 // Execution PWM et gestion moteur à partir des info dans structure
 void GPWM_ExecPWM(S_pwmSettings *pData)
 {
-   
+ float Control_Data;
+ static uint16_t Cpt_Speeed;
+ static uint16_t Cpt_Angle; 
+ // vitesse
+ // gestion direction pont H
+    // sens horaire
+    if(pData->SpeedSetting <= 1)
+    {
+        AIN1_HBRIDGE_W = 1; 
+        AIN2_HBRIDGE_W = 0; 
+        STBY_HBRIDGE_W = 1; 
+    }
+    // sens anti horaire
+    if (pData->SpeedSetting >= 1)
+    {
+        AIN1_HBRIDGE_W = 0; 
+        AIN2_HBRIDGE_W = 1; 
+        STBY_HBRIDGE_W = 1; 
+    }
+    // stop
+    else 
+    {
+        STBY_HBRIDGE_W = 0;      
+    }
+    //calcul implusion por OC2
+    Control_Data = pData->absSpeed; 
+    if ( Control_Data != pData->absSpeed)
+    {
+        Cpt_Speeed ++;
+    }
+    
+    PLIB_OC_PulseWidth16BitSet(Cpt_Speeed,pData->absSpeed);
+    
+// Angle
+    //calcul implusion por OC3
+    Control_Data = pData->AngleSetting; 
+    if ( Control_Data != pData->AngleSetting)
+    {
+        Cpt_Angle ++;
+    }
+
+    PLIB_OC_PulseWidth16BitSet(Cpt_Angle,pData->AngleSetting);
 }
 
 // Execution PWM software
 void GPWM_ExecPWMSoft(S_pwmSettings *pData)
 {
-    
+    pData->absSpeed;
 }
-
-

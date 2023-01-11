@@ -9,7 +9,9 @@
             <file>file:/C:/microchip/harmony/v2_06/apps/MINF/TP/TP1/TP1/firmware/src/system_config/default/system_interrupt.c</file>
             <file>file:/C:/microchip/harmony/v2_06/apps/MINF/TP/TP1/TP1/firmware/src/gestPWM.h</file>
             <file>file:/C:/microchip/harmony/v2_06/apps/MINF/TP/TP1/TP1/firmware/src/app.h</file>
+            <file>file:/C:/microchip/harmony/v2_06/bsp/pic32mx_skes/bsp.h</file>
             <file>file:/C:/microchip/harmony/v2_06/apps/MINF/TP/TP1/TP1/firmware/src/app.c</file>
+            <file>file:/C:/microchip/harmony/v2_06/apps/MINF/TP/TP1/TP1/firmware/src/system_config/default/system_tasks.c</file>
             <file>file:/C:/microchip/harmony/v2_06/bsp/pic32mx_skes/Mc32DriverAdc.c</file>
         </group>
     </open-files>
