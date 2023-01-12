@@ -14,10 +14,10 @@
 
 
 #include "GestPWM.h"
+#include "Mc32DriverLcd.h"
 #include "Mc32DriverAdc.h"
-#include "Mc32DriverAdcAlt.h"
-#include "peripheral/oc/plib_oc.h"
 #include "app.h"
+#include "peripheral/oc/plib_oc.h"
 
 S_pwmSettings PWMData;      // pour les settings
 
@@ -44,37 +44,39 @@ void GPWM_GetSettings(S_pwmSettings *pData )
     static uint16_t Memory_Speed[10]={};
     static uint16_t Moyenne_Angle = 0;
     static uint16_t Moyenne_Speed = 0;
-    static uint16_t i,i2=0;
+    static uint16_t i=0;
     S_ADCResults ReadData;
     // Lecture du convertisseur AD
     ReadData = BSP_ReadAllADC();
     Memory_Speed[i]= ReadData.Chan0;
     Memory_Angle[i]= ReadData.Chan1;
     i++;
-    // valeur moyenne glisante
+  
     if(i>= 10)
     {
+
         i=0;
     }
+    // valeur moyenne glisante 
     Moyenne_Speed =(Memory_Speed[0]+Memory_Speed[1]
             +Memory_Speed[2]+Memory_Speed[3]
             +Memory_Speed[4]+Memory_Speed[5]
             +Memory_Speed[6]+Memory_Speed[7]
-            +Memory_Speed[8]+Memory_Speed[9])/10;
+            +Memory_Speed[8]+Memory_Speed[9])/TAILLE_FILTRE ;
     
     Moyenne_Angle = (Memory_Angle[0]+Memory_Angle[1]
             +Memory_Angle[2]+Memory_Angle[3]
             +Memory_Angle[4]+Memory_Angle[5]
             +Memory_Angle[6]+Memory_Angle[7]
-            +Memory_Angle[8]+Memory_Angle[9])/10;
-    
-    pData->absSpeed = ((Moyenne_Speed*198)/1023);
-    pData->absAngle = ((Moyenne_Angle*180)/1023);
+            +Memory_Angle[8]+Memory_Angle[9])/TAILLE_FILTRE ;
+    //calcul pour avoir la valeur brut    
+    pData->absSpeed = ((Moyenne_Speed*VITESSE_MAX)/RESOLUTION_ADC );
+    pData->absAngle = ((Moyenne_Angle*ANGLE_MAX)/RESOLUTION_ADC );
 
     // conversion 
     pData->SpeedSetting = pData->absSpeed -99;
     pData->AngleSetting = pData->absAngle -90;
-    
+    // conversion pour avoir absSpeed de 99 0 99
     if(pData->SpeedSetting < 0 )
     {
         pData->absSpeed = 0-pData->SpeedSetting; 
@@ -101,52 +103,71 @@ void GPWM_DispSettings(S_pwmSettings *pData)
 // Execution PWM et gestion moteur à partir des info dans structure
 void GPWM_ExecPWM(S_pwmSettings *pData)
 {
- float Control_Data;
- static uint16_t Cpt_Speeed;
- static uint16_t Cpt_Angle; 
+    uint16_t LargeurT2 = 0;
+    uint16_t LargeurT3 = 0;
+    float Angle = 0;
  // vitesse
  // gestion direction pont H
     // sens horaire
-    if(pData->SpeedSetting <= 1)
+    if(pData->SpeedSetting < 0)
     {
         AIN1_HBRIDGE_W = 1; 
         AIN2_HBRIDGE_W = 0; 
         STBY_HBRIDGE_W = 1; 
     }
     // sens anti horaire
-    if (pData->SpeedSetting >= 1)
+    if (pData->SpeedSetting > 0)
     {
         AIN1_HBRIDGE_W = 0; 
         AIN2_HBRIDGE_W = 1; 
         STBY_HBRIDGE_W = 1; 
     }
     // stop
-    else 
+    if (pData->SpeedSetting == 0)
     {
         STBY_HBRIDGE_W = 0;      
     }
-    //calcul implusion por OC2
-    Control_Data = pData->absSpeed; 
-    if ( Control_Data != pData->absSpeed)
-    {
-        Cpt_Speeed ++;
-    }
-    
-    PLIB_OC_PulseWidth16BitSet(Cpt_Speeed,pData->absSpeed);
-    
-// Angle
-    //calcul implusion por OC3
-    Control_Data = pData->AngleSetting; 
-    if ( Control_Data != pData->AngleSetting)
-    {
-        Cpt_Angle ++;
-    }
 
-    PLIB_OC_PulseWidth16BitSet(Cpt_Angle,pData->AngleSetting);
+     /* periode du timer */
+    LargeurT2 = DRV_TMR1_PeriodValueGet();  
+    /* Calcul du rapport */
+    LargeurT2 = LargeurT2 * (float)(pData->absSpeed/99.0);
+    /* pulse du PWM */
+    PLIB_OC_PulseWidth16BitSet(_OCMP2_BASE_ADDRESS, LargeurT2);
+    
+    /* Calcul du ratio de l'angle */
+    Angle = (float)((pData->AngleSetting+90)/180.0);
+    /* Calcul de la largeur de la pulse */
+    LargeurT3 = (DRV_TMR2_CounterFrequencyGet()/(1/(MAX_SERVO - MIN_SERVO )))*Angle;
+    /* Ajout du minimum pour le servo moteur */
+    LargeurT3 += DRV_TMR2_CounterFrequencyGet()/(1/(MIN_SERVO ));    
+    //génération d'une impulsion dont la largeur est proportionnelle à l'angle
+    PLIB_OC_PulseWidth16BitSet(_OCMP3_BASE_ADDRESS, LargeurT3);
+ 
 }
 
 // Execution PWM software
 void GPWM_ExecPWMSoft(S_pwmSettings *pData)
 {
-    pData->absSpeed;
+    uint8_t pwmCnt;
+    
+    /* Incrément PWM */
+    pwmCnt++;
+    
+    /* Gestion du temps ON*/
+    if(pwmCnt <= pData->absSpeed)
+    {
+        BSP_LEDOn(BSP_LED_5);
+        
+    /* Temps OFF */
+    }
+    else 
+    {
+        BSP_LEDOff(BSP_LED_5);
+
+    }
+    if(pwmCnt >= 100)
+    {
+        pwmCnt = 0;
+    }
 }

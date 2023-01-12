@@ -14,11 +14,19 @@
 /*--------------------------------------------------------*/
 
 #include <stdint.h>
-
-
+#include"Mc32DriverAdc.h"
+#include "app.h"
 /*--------------------------------------------------------*/
 // Définition des fonctions prototypes
 /*--------------------------------------------------------*/
+
+#define TAILLE_FILTRE 10                        // Taille du filtre coulissant
+#define RESOLUTION_ADC 1023                     // Resolution de l'ADC
+#define VITESSE_MAX 198                         // Vitesse maximum 
+#define ANGLE_MAX 180                           // Angle maximum
+
+#define MAX_SERVO 0.0024                        // Temps max du servomoteur
+#define MIN_SERVO 0.0006                        // Temps min du servomoteur
 
 
 typedef struct {

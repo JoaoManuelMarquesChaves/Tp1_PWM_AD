@@ -72,36 +72,58 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
  
 
 void __ISR(_TIMER_1_VECTOR, ipl4AUTO) IntHandlerDrvTmrInstance0(void)
-{
-    S_pwmSettings PWMData; 
-    static uint8_t Count = 0;
+{ 
+    /* Mesure durée interrupt */
+    BSP_LEDOn(BSP_LED_0);
+    
+    static uint32_t Count = 0;
     PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_1);
-    if(Count < 150)
-    {
+        if(Count == 150)
+    {   
+        /* Led flag mesure 3 sec */
+        BSP_LEDOff(BSP_LED_4);
+        /* Incrémente pour executer directement la suite */
         Count++;
     }
-    //apres 3 seconde mettre etat tasks de la machine d'etat
-    if(Count >= 150) 
-    {     
-            
-            APP_UpdateState(APP_STATE_SERVICE_TASKS);
-            GPWM_GetSettings(&PWMData);
-            GPWM_DispSettings(&PWMData);
+    //Entré lorsque 3s on passer après l'initialisation
+    if (Count >= 151)
+    {
+        APP_UpdateState(APP_STATE_SERVICE_TASKS);
+        GPWM_GetSettings(&PWMData);
+        GPWM_DispSettings(&PWMData);
+        GPWM_ExecPWM(&PWMData);
     }
+    else
+    {
+        /* Led flag mesure 3 sec */
+        BSP_LEDOn(BSP_LED_4);
+        //incrémenté l'indice
+        Count++;
+        //Lors de l'initialisation, va dans l'état vait jusqu'à attendre 3 seconde
+        APP_UpdateState(APP_STATE_WAIT);      
+    }
+    
+    /* Mesure durée interrupt */
+    BSP_LEDOff(BSP_LED_0);
 }
-void __ISR(_TIMER_2_VECTOR, ipl1AUTO) IntHandlerDrvTmrInstance1(void)
+
+void __ISR(_TIMER_2_VECTOR, ipl0AUTO) IntHandlerDrvTmrInstance1(void)
 {
     PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_2);
 }
-void __ISR(_TIMER_3_VECTOR, ipl1AUTO) IntHandlerDrvTmrInstance2(void)
+void __ISR(_TIMER_3_VECTOR, ipl0AUTO) IntHandlerDrvTmrInstance2(void)
 {
     PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_3);
 }
-void __ISR(_TIMER_5_VECTOR, ipl4AUTO) IntHandlerDrvTmrInstance3(void)
+void __ISR(_TIMER_4_VECTOR, ipl7AUTO) IntHandlerDrvTmrInstance3(void)
 {
-    PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_5);
+    PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_4);
+    /* LED pour mesure temps interrupt */
+    BSP_LEDOn(BSP_LED_1);
+    GPWM_ExecPWMSoft(&PWMData);
+    /* LED pour mesure temps interrupt */
+    BSP_LEDOff(BSP_LED_1);
 }
- 
 /*******************************************************************************
  End of File
 */

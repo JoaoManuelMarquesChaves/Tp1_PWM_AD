@@ -176,7 +176,9 @@ build/default/production/_ext/1360937237/app.o: ../src/app.c ../src/app.h \
  ../../../../../../../framework/system/ports/sys_ports.h \
  ../../../../../../../framework/system/ports/sys_ports_definitions.h \
  ../src/app.h ../src/gestPWM.h \
- ../../../../../../../bsp/pic32mx_skes/Mc32DriverLcd.h
+ ../../../../../../../bsp/pic32mx_skes/Mc32DriverAdc.h \
+ ../../../../../../../bsp/pic32mx_skes/Mc32DriverLcd.h \
+ ../../../../../../../bsp/pic32mx_skes/Mc32Delays.h
 
 ../src/app.h:
 
@@ -536,4 +538,8 @@ build/default/production/_ext/1360937237/app.o: ../src/app.c ../src/app.h \
 
 ../src/gestPWM.h:
 
+../../../../../../../bsp/pic32mx_skes/Mc32DriverAdc.h:
+
 ../../../../../../../bsp/pic32mx_skes/Mc32DriverLcd.h:
+
+../../../../../../../bsp/pic32mx_skes/Mc32Delays.h:

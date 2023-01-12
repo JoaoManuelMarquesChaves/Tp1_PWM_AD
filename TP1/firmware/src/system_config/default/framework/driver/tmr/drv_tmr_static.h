@@ -235,7 +235,7 @@ static inline void DRV_TMR3_Open(void) {}
 DRV_TMR_CLIENT_STATUS DRV_TMR3_ClientStatus ( void );
 static inline DRV_TMR_OPERATION_MODE DRV_TMR3_OperationModeGet(void)
 {
-    return DRV_TMR_OPERATION_MODE_32_BIT;
+    return DRV_TMR_OPERATION_MODE_16_BIT;
 }
 static inline void DRV_TMR3_Close(void) 
 {

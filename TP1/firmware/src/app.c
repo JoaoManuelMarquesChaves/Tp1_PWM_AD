@@ -57,6 +57,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "app.h"
 #include "gestPWM.h"
 #include "Mc32DriverLcd.h"
+#include "Mc32Delays.h"
 #include "bsp.h"
 
 
@@ -158,18 +159,20 @@ void APP_Tasks ( void )
                 lcd_gotoxy(1,3 );      // ecrire sur la deuxieme ligne
                 printf_lcd("Loic David");
                 BSP_InitADC10();     //initialisation de l'adc 
-                BSP_LEDOn(BSP_LED_0);
-                BSP_LEDOn(BSP_LED_1);
-                BSP_LEDOn(BSP_LED_2);
-                BSP_LEDOn(BSP_LED_3);
-                BSP_LEDOn(BSP_LED_4);
-                BSP_LEDOn(BSP_LED_5);
-                BSP_LEDOn(BSP_LED_6);
-                BSP_LEDOn(BSP_LED_7);
                 GPWM_Initialize(&PWMData);
                 appData.state = APP_STATE_SERVICE_TASKS;
             }
             appData.state = APP_STATE_WAIT;
+            
+            BSP_LEDOn(BSP_LED_0);
+            BSP_LEDOn(BSP_LED_1);
+            BSP_LEDOn(BSP_LED_2);
+            BSP_LEDOn(BSP_LED_3);
+            BSP_LEDOn(BSP_LED_4);
+            BSP_LEDOn(BSP_LED_5);
+            BSP_LEDOn(BSP_LED_6);
+            BSP_LEDOn(BSP_LED_7);
+            
             break;
         }
         case APP_STATE_WAIT:
